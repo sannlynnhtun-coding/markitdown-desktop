@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Bundle
+      Name="MarkItDown Desktop"
+      Manufacturer="MarkItDown Desktop Community"
+      Version="$(AppVersion)"
+      UpgradeCode="834A19D9-0667-4DD1-9B2B-47F666681E09"
+      Compressed="yes">
+
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication
+          Theme="rtfLicense"
+          LicenseFile="License.rtf"
+          ShowVersion="yes"
+          SuppressOptionsUI="yes"
+          LaunchTarget="[ProgramFiles6432Folder]MarkItDown Desktop\MarkItDown.Desktop.exe" />
+    </BootstrapperApplication>
+
+    <util:RegistrySearch
+        Id="FindMachineWebView2"
+        Variable="WebView2MachineVersion"
+        Root="HKLM"
+        Key="SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+        Value="pv"
+        Result="value"
+        Bitness="always64" />
+    <util:RegistrySearch
+        Id="FindUserWebView2"
+        Variable="WebView2UserVersion"
+        Root="HKCU"
+        Key="Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+        Value="pv"
+        Result="value" />
+
+    <Chain>
+      <ExePackage
+          Id="WebView2Runtime"
+          SourceFile="$(WebView2Installer)"
+          DisplayName="Microsoft Edge WebView2 Runtime"
+          InstallArguments="/silent /install"
+          DetectCondition="(WebView2MachineVersion AND WebView2MachineVersion &lt;&gt; &quot;0.0.0.0&quot;) OR (WebView2UserVersion AND WebView2UserVersion &lt;&gt; &quot;0.0.0.0&quot;)"
+          Permanent="yes"
+          Vital="yes" />
+      <MsiPackage Id="MarkItDownDesktopMsi" SourceFile="$(MsiPath)" Vital="yes" />
+    </Chain>
+  </Bundle>
+</Wix>

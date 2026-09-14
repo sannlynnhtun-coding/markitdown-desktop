@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="300" viewBox="0 0 620 300">
+  <rect width="620" height="300" rx="28" fill="#F8FAFC"/>
+  <g transform="translate(72 38)">
+    <path d="M0 0h130l58 58v166H0z" fill="#4F46E5"/>
+    <path d="M130 0v58h58" fill="#A5B4FC"/>
+    <path d="M36 94h116M36 130h78M36 166h56" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+  </g>
+  <text x="300" y="132" font-family="Segoe UI, sans-serif" font-size="42" font-weight="650" fill="#0F172A">MarkItDown</text>
+  <text x="300" y="178" font-family="Segoe UI, sans-serif" font-size="28" fill="#475569">Desktop</text>
+</svg>

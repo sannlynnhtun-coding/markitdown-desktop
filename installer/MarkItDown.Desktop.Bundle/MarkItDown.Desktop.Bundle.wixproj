@@ -1,0 +1,16 @@
+<Project Sdk="WixToolset.Sdk/7.0.0">
+  <PropertyGroup>
+    <OutputType>Bundle</OutputType>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <OutputName>MarkItDownDesktop-Setup-x64</OutputName>
+    <AppVersion Condition="'$(AppVersion)' == ''">0.1.0</AppVersion>
+    <MsiPath Condition="'$(MsiPath)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\installer\MarkItDownDesktop-x64.msi</MsiPath>
+    <WebView2Installer Condition="'$(WebView2Installer)' == ''">$(MSBuildThisFileDirectory)..\..\build\downloads\MicrosoftEdgeWebView2RuntimeInstallerX64.exe</WebView2Installer>
+    <DefineConstants>$(DefineConstants);AppVersion=$(AppVersion);MsiPath=$(MsiPath);WebView2Installer=$(WebView2Installer)</DefineConstants>
+    <AcceptEula>wix7</AcceptEula>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.BootstrapperApplications.wixext" />
+    <PackageReference Include="WixToolset.Util.wixext" />
+  </ItemGroup>
+</Project>

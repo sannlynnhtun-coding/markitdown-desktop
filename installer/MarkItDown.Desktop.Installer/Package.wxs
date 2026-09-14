@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package
+      Name="MarkItDown Desktop"
+      Manufacturer="MarkItDown Desktop Community"
+      Version="$(AppVersion)"
+      UpgradeCode="B0FF1A66-F4AE-4541-8174-CEE6281824FF"
+      Scope="perMachine"
+      Language="1033"
+      Codepage="65001"
+      InstallerVersion="500">
+
+    <SummaryInformation Description="Community desktop app powered by Microsoft MarkItDown" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of MarkItDown Desktop is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="MarkItDown Desktop" />
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <Property Id="WEBVIEW2_MACHINE">
+      <RegistrySearch
+          Id="FindMachineWebView2"
+          Root="HKLM"
+          Key="SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+          Name="pv"
+          Type="raw"
+          Bitness="always64" />
+    </Property>
+    <Property Id="WEBVIEW2_USER">
+      <RegistrySearch
+          Id="FindUserWebView2"
+          Root="HKCU"
+          Key="Software\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
+          Name="pv"
+          Type="raw" />
+    </Property>
+    <Launch
+        Condition="Installed OR (WEBVIEW2_MACHINE AND WEBVIEW2_MACHINE &lt;&gt; &quot;0.0.0.0&quot;) OR (WEBVIEW2_USER AND WEBVIEW2_USER &lt;&gt; &quot;0.0.0.0&quot;)"
+        Message="Microsoft Edge WebView2 Runtime is required. Use MarkItDownDesktop-Setup-x64.exe, or install the x64 WebView2 Runtime before deploying this MSI." />
+
+    <Feature Id="MainFeature" Title="MarkItDown Desktop" Level="1">
+      <Files Include="$(PayloadDir)\**" Directory="INSTALLFOLDER">
+        <Exclude Files="$(PayloadDir)\MarkItDown.Desktop.exe" />
+      </Files>
+      <ComponentRef Id="ApplicationExecutableComponent" />
+    </Feature>
+
+    <Component Id="ApplicationExecutableComponent" Directory="INSTALLFOLDER" Guid="*">
+      <File Id="ApplicationExecutable" Source="$(PayloadDir)\MarkItDown.Desktop.exe" KeyPath="yes">
+        <Shortcut
+            Id="StartMenuShortcut"
+            Directory="ProgramMenuFolder"
+            Name="MarkItDown Desktop"
+            Description="Convert local documents to Markdown"
+            WorkingDirectory="INSTALLFOLDER"
+            Advertise="yes" />
+      </File>
+    </Component>
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+  </Package>
+</Wix>
