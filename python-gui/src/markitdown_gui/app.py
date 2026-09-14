@@ -64,16 +64,25 @@ class MarkItDownApp:
         self.root.after(self.POLL_INTERVAL_MS, self._drain_events)
 
     def _load_icon(self) -> None:
+        self.app_icon = None
         try:
             assets = resource_files("markitdown_gui").joinpath("assets")
             png_asset = assets.joinpath("markitdown-app-64.png")
             self.app_icon = tk.PhotoImage(file=str(png_asset))
-            self.root.iconphoto(True, self.app_icon)
             if os.name == "nt":
                 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(  # type: ignore[attr-defined]
                     "Microsoft.MarkItDown.Desktop"
                 )
-                self.root.iconbitmap(default=str(assets.joinpath("markitdown-app.ico")))
+                ico_asset = str(assets.joinpath("markitdown-app.ico"))
+
+                def apply_form_icon() -> None:
+                    self.root.iconbitmap(ico_asset)
+                    self.root.iconbitmap(default=ico_asset)
+
+                apply_form_icon()
+                self.root.after_idle(apply_form_icon)
+            else:
+                self.root.iconphoto(True, self.app_icon)
         except (OSError, tk.TclError):
             self.app_icon = None
 
