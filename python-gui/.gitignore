@@ -1,0 +1,7 @@
+build/
+artifacts/*.exe
+artifacts/*.sha256
+!installer/markitdown-gui.spec
+__pycache__/
+*.py[cod]
+.venv/
