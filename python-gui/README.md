@@ -38,3 +38,14 @@ python -m pip install "markitdown[all]>=0.1,<0.2"
 $env:PYTHONPATH = ".\python-gui\src"
 python -m unittest discover .\python-gui\tests -v
 ```
+
+## Build the Windows installer
+
+The build freezes Python and the pinned Microsoft MarkItDown source with all
+format dependencies, then packages the application with Inno Setup 6:
+
+```powershell
+.\python-gui\installer\build-installer.ps1
+```
+
+The installer and SHA-256 checksum are written to `python-gui\artifacts`.
