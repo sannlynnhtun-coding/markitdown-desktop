@@ -46,6 +46,8 @@ jobs:
     needs: verify
     runs-on: windows-latest
     timeout-minutes: 90
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -75,3 +77,39 @@ jobs:
             artifacts/installer/MarkItDownDesktop-x64.msi
             artifacts/installer/SHA256SUMS.txt
           if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $releaseNotes = @'
+          First Windows x64 release of MarkItDown Desktop, an independent community GUI powered by Microsoft MarkItDown.
+
+          ## Download
+
+          - **MarkItDownDesktop-Setup-x64.exe** — recommended offline installer; includes the WebView2 prerequisite.
+          - **MarkItDownDesktop-x64.msi** — enterprise deployment package; requires WebView2 to be installed first.
+          - **SHA256SUMS.txt** — SHA-256 checksums for both installers.
+
+          End users do not need Python, pip, the .NET runtime, or a command line. Conversion runs locally and telemetry is not collected.
+
+          > [!WARNING]
+          > These initial installers are unsigned. Windows may show a SmartScreen warning. A trusted Authenticode certificate is required before broad public distribution.
+          '@
+          $arguments = @(
+            'release', 'create', $env:GITHUB_REF_NAME,
+            'artifacts/installer/MarkItDownDesktop-Setup-x64.exe',
+            'artifacts/installer/MarkItDownDesktop-x64.msi',
+            'artifacts/installer/SHA256SUMS.txt',
+            '--repo', $env:GITHUB_REPOSITORY,
+            '--verify-tag',
+            '--title', "MarkItDown Desktop $env:GITHUB_REF_NAME",
+            '--notes', $releaseNotes,
+            '--latest'
+          )
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) {
+            throw "GitHub Release creation failed with exit code $LASTEXITCODE."
+          }
