@@ -3,7 +3,7 @@
     <OutputType>Package</OutputType>
     <InstallerPlatform>x64</InstallerPlatform>
     <OutputName>MarkItDownDesktop-x64</OutputName>
-    <AppVersion Condition="'$(AppVersion)' == ''">0.1.0</AppVersion>
+    <AppVersion Condition="'$(AppVersion)' == ''">0.2.0</AppVersion>
     <PayloadDir Condition="'$(PayloadDir)' == ''">$(MSBuildThisFileDirectory)..\..\artifacts\publish</PayloadDir>
     <DefineConstants>$(DefineConstants);AppVersion=$(AppVersion);PayloadDir=$(PayloadDir)</DefineConstants>
     <AcceptEula>wix7</AcceptEula>

@@ -62,7 +62,7 @@ jobs:
           $version = if ($env:GITHUB_REF_TYPE -eq 'tag') {
             $env:GITHUB_REF_NAME.TrimStart('v')
           } else {
-            '0.1.0'
+            '0.2.0'
           }
           .\python-gui\installer\build-installer.ps1 -Version $version
 
@@ -95,7 +95,9 @@ jobs:
 
           ## Highlights
 
-          - Queue files or folders and use the visible **Convert all** action.
+          - Drag individual files or entire folders from Explorer directly onto the source queue.
+          - Dropped folders are scanned recursively; supported files are queued in stable order without duplicates.
+          - Add files or folders with the accessible picker controls and use the visible **Convert all** action.
           - Follow batch percentage, per-file status, step-by-step logs, and elapsed time.
           - Switch between light and dark modes.
           - Right-click completed files to open their Markdown output.

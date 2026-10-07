@@ -9,7 +9,7 @@ The distributed application includes or uses the following major third-party com
 | Microsoft MarkItDown | 0.1.7 | MIT; bundled license in `ThirdPartyNotices/MARKITDOWN-LICENSE.txt` |
 | Python (embedded x64) | 3.13.13 | Python Software Foundation License; bundled license in `ThirdPartyNotices/PYTHON-LICENSE.txt` |
 | ExifTool | 13.59 | Artistic License / GPL option; bundled license in `ThirdPartyNotices/EXIFTOOL-LICENSE.txt` |
-| Uno Platform | 6.7.22 | Apache-2.0 |
+| Uno Platform | 6.7.30 | Apache-2.0 |
 | .NET / Windows App SDK | 10 / package-pinned | MIT and applicable Microsoft terms |
 | Microsoft Edge WebView2 Runtime | Evergreen offline installer | Microsoft Edge WebView2 Runtime terms |
 | Markdig | 1.3.2 | BSD-2-Clause |
