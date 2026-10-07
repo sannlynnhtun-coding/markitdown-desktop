@@ -10,7 +10,7 @@ require users to install Python or use a command line.
 1. Download `MarkItDownDesktop-Setup-x64.exe` from the
    [latest release](https://github.com/sannlynnhtun-coding/markitdown-desktop/releases/latest).
 2. Install and open **MarkItDown**.
-3. Add individual files or a folder to the source queue.
+3. Add individual files or a folder with the picker, or drop files and folders directly on the source queue.
 4. Choose an output folder and select **Convert all**.
 5. Follow the percentage, per-file status, activity log, and elapsed time.
 

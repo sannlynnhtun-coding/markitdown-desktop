@@ -16,6 +16,7 @@
   <Grid RowDefinitions="Auto,Auto,*,Auto">
     <CommandBar Grid.Row="0" DefaultLabelPosition="Right" IsDynamicOverflowEnabled="True" AutomationProperties.Name="Document conversion commands">
       <AppBarButton Icon="OpenFile" Label="Add files" ToolTipService.ToolTip="Add files (Ctrl+O)" AutomationProperties.Name="Add files" Click="OnAddFilesClick" />
+      <AppBarButton Icon="Folder" Label="Add folder" ToolTipService.ToolTip="Add all supported files from a folder" AutomationProperties.Name="Add folder" Click="OnAddFolderClick" />
       <AppBarButton Icon="Play" Label="Convert all" IsEnabled="{Binding CanConvert}" ToolTipService.ToolTip="Convert pending files (Ctrl+Enter)" AutomationProperties.Name="Convert all pending files" Click="OnConvertAllClick" />
       <AppBarButton Icon="Stop" Label="Cancel" IsEnabled="{Binding IsBusy}" ToolTipService.ToolTip="Cancel the current batch" AutomationProperties.Name="Cancel batch conversion" Click="OnCancelClick" />
       <AppBarSeparator />
@@ -43,13 +44,13 @@
               Padding="16"
               AllowDrop="True"
               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-              DragOver="OnDropZoneDragOver"
-              Drop="OnDropZoneDrop"
-              AutomationProperties.Name="File drop area. Use Add files as a keyboard alternative.">
+              DragOver="OnInputDragOver"
+              Drop="OnInputDrop"
+              AutomationProperties.Name="File and folder drop area. Use Add files or Add folder as a keyboard alternative.">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="4">
               <FontIcon Glyph="&#xE898;" FontSize="24" AutomationProperties.AccessibilityView="Raw" />
-              <TextBlock Text="Drop files here" FontWeight="SemiBold" HorizontalAlignment="Center" />
-              <TextBlock Text="or use Add files" Opacity="0.72" HorizontalAlignment="Center" />
+              <TextBlock Text="Drop files or folders here" FontWeight="SemiBold" HorizontalAlignment="Center" />
+              <TextBlock Text="or use Add files / Add folder" Opacity="0.72" HorizontalAlignment="Center" />
             </StackPanel>
           </Grid>
 
@@ -57,6 +58,9 @@
               x:Name="QueueList"
               Grid.Row="1"
               ItemsSource="{Binding Jobs}"
+              AllowDrop="True"
+              DragOver="OnInputDragOver"
+              Drop="OnInputDrop"
               SelectionMode="Single"
               SelectionChanged="OnQueueSelectionChanged"
               AutomationProperties.Name="Conversion queue">

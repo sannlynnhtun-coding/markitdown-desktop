@@ -31,6 +31,7 @@ public partial class App : Application
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<IAppSettingsService, JsonAppSettingsService>();
+                    services.AddSingleton<IInputPathCollector, InputPathCollector>();
                     services.AddSingleton<IOutputFileService, OutputFileService>();
                     services.AddSingleton<IAppLog, RotatingFileLog>();
                     services.AddSingleton<IWorkerClient, WorkerClient>();

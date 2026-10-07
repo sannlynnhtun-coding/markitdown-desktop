@@ -22,11 +22,14 @@ public sealed partial class MainPage : Page
     private bool _restoringSelection;
     private bool _previewReady;
     private bool _closeApproved;
+    private readonly IInputPathCollector _inputPathCollector;
 
     public MainPage()
     {
         InitializeComponent();
-        ViewModel = ((App)Application.Current).Services.GetRequiredService<MainViewModel>();
+        var services = ((App)Application.Current).Services;
+        ViewModel = services.GetRequiredService<MainViewModel>();
+        _inputPathCollector = services.GetRequiredService<IInputPathCollector>();
         DataContext = ViewModel;
         ViewModel.PropertyChanged += OnViewModelPropertyChanged;
     }
@@ -240,7 +243,25 @@ public sealed partial class MainPage : Page
         picker.FileTypeFilter.Add("*");
         InitializePicker(picker);
         var files = await picker.PickMultipleFilesAsync();
-        ViewModel.AddFiles(files.Select(file => file.Path));
+        await AddInputPathsAsync(files.Select(file => file.Path));
+    }
+
+    private async void OnAddFolderClick(object sender, RoutedEventArgs e)
+    {
+        var picker = new FolderPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary };
+        picker.FileTypeFilter.Add("*");
+        InitializePicker(picker);
+        var folder = await picker.PickSingleFolderAsync();
+        if (folder is not null)
+        {
+            await AddInputPathsAsync([folder.Path]);
+        }
+    }
+
+    private async Task AddInputPathsAsync(IEnumerable<string> paths)
+    {
+        var files = await _inputPathCollector.CollectAsync(paths);
+        ViewModel.AddFiles(files);
         if (QueueList.SelectedItem is null && ViewModel.SelectedJob is not null)
         {
             QueueList.SelectedItem = ViewModel.SelectedJob;
@@ -271,14 +292,20 @@ public sealed partial class MainPage : Page
         WinRT.Interop.InitializeWithWindow.Initialize(picker, windowHandle);
     }
 
-    private void OnDropZoneDragOver(object sender, DragEventArgs e)
+    private void OnInputDragOver(object sender, DragEventArgs e)
     {
+        if (!e.DataView.Contains(StandardDataFormats.StorageItems))
+        {
+            return;
+        }
+
         e.AcceptedOperation = DataPackageOperation.Copy;
-        e.DragUIOverride.Caption = "Add files to the conversion queue";
+        e.DragUIOverride.Caption = "Add files or folders to the conversion queue";
         e.DragUIOverride.IsCaptionVisible = true;
+        e.Handled = true;
     }
 
-    private async void OnDropZoneDrop(object sender, DragEventArgs e)
+    private async void OnInputDrop(object sender, DragEventArgs e)
     {
         if (!e.DataView.Contains(StandardDataFormats.StorageItems))
         {
@@ -286,11 +313,8 @@ public sealed partial class MainPage : Page
         }
 
         var items = await e.DataView.GetStorageItemsAsync();
-        ViewModel.AddFiles(items.OfType<StorageFile>().Select(file => file.Path));
-        if (QueueList.SelectedItem is null && ViewModel.SelectedJob is not null)
-        {
-            QueueList.SelectedItem = ViewModel.SelectedJob;
-        }
+        await AddInputPathsAsync(items.Select(item => item.Path));
+        e.Handled = true;
     }
 
     private async void OnQueueSelectionChanged(object sender, SelectionChangedEventArgs e)

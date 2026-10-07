@@ -4,13 +4,6 @@ public sealed class MainViewModel : ObservableObject
 {
     public const long MaximumPreviewBytes = 5 * 1024 * 1024;
 
-    private static readonly HashSet<string> SupportedExtensions = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ".pdf", ".docx", ".pptx", ".xlsx", ".xls", ".msg", ".epub", ".zip", ".ipynb",
-        ".html", ".htm", ".csv", ".json", ".xml", ".rss", ".atom", ".txt", ".md",
-        ".jpg", ".jpeg", ".png",
-    };
-
     private readonly IAppSettingsService _settingsService;
     private readonly IOutputFileService _outputFileService;
     private readonly IWorkerClient _workerClient;
@@ -137,7 +130,7 @@ public sealed class MainViewModel : ObservableObject
             }
 
             var job = new ConversionJob(fullPath);
-            if (!SupportedExtensions.Contains(job.Extension))
+            if (!SupportedInputFiles.IsSupported(fullPath))
             {
                 job.Status = ConversionStatus.Failed;
                 job.ErrorMessage = "This file type is not supported in the offline edition.";
