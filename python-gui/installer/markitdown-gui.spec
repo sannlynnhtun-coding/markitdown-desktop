@@ -14,6 +14,7 @@ datas = [
     (str(assets / "markitdown-app.ico"), "markitdown_gui/assets"),
 ]
 datas += collect_data_files("magika")
+datas += collect_data_files("tkinterdnd2")
 datas += copy_metadata("markitdown")
 datas += copy_metadata("magika")
 

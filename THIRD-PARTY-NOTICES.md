@@ -13,6 +13,7 @@ The distributed application includes or uses the following major third-party com
 | .NET / Windows App SDK | 10 / package-pinned | MIT and applicable Microsoft terms |
 | Microsoft Edge WebView2 Runtime | Evergreen offline installer | Microsoft Edge WebView2 Runtime terms |
 | Markdig | 1.3.2 | BSD-2-Clause |
+| tkinterdnd2 | 0.6.3 | MIT; provides native Windows file and folder drag-and-drop integration |
 | CommunityToolkit.Mvvm | package-pinned | MIT |
 | WiX Toolset | 7.0.0 | Microsoft Reciprocal License plus Open Source Maintenance Fee terms accepted by the project owner |
 
@@ -25,5 +26,6 @@ Source links:
 - https://exiftool.org/
 - https://platform.uno/
 - https://github.com/xoofx/markdig
+- https://github.com/pmgagne/tkinterdnd2
 - https://github.com/wixtoolset/wix
 - https://developer.microsoft.com/microsoft-edge/webview2/

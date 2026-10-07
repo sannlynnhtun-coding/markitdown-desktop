@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check `
             "markitdown @ git+https://github.com/microsoft/markitdown.git@cc0ca9edd8e23b2c7f7b778c7b148c1565730498#subdirectory=packages/markitdown"
+          python -m pip install --disable-pip-version-check "tkinterdnd2==0.6.3"
           python -m pip install --disable-pip-version-check --no-deps .\python-gui
 
       - name: Run tests

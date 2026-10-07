@@ -15,6 +15,8 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from typing import Iterable
 
+from tkinterdnd2 import COPY, DND_FILES, REFUSE_DROP, TkinterDnD
+
 from .conversion import (
     BatchConverter,
     ConversionEvent,
@@ -23,6 +25,7 @@ from .conversion import (
     format_duration,
 )
 from .theme import PALETTES, ThemePreference
+from .sources import expand_dropped_sources
 
 
 class MarkItDownApp:
@@ -157,7 +160,7 @@ class MarkItDownApp:
         )
         ttk.Label(
             title_group,
-            text="Files are converted in this order",
+            text="Drop files or folders here • converted in this order",
             style="CardMeta.TLabel",
         ).grid(row=1, column=0, sticky="w")
 
@@ -218,6 +221,10 @@ class MarkItDownApp:
         scrollbar.grid(row=0, column=1, sticky="ns")
         self.file_tree.configure(yscrollcommand=scrollbar.set)
         self.file_tree.bind("<Button-3>", self._show_file_context_menu)
+        self.file_tree.drop_target_register(DND_FILES)  # type: ignore[attr-defined]
+        self.file_tree.dnd_bind("<<DropEnter>>", self._on_drop_enter)  # type: ignore[attr-defined]
+        self.file_tree.dnd_bind("<<DropLeave>>", self._on_drop_leave)  # type: ignore[attr-defined]
+        self.file_tree.dnd_bind("<<Drop>>", self._on_files_dropped)  # type: ignore[attr-defined]
 
         self.file_context_menu = tk.Menu(
             self.root,
@@ -642,13 +649,26 @@ class MarkItDownApp:
         selected = filedialog.askdirectory(parent=self.root, title="Choose a folder")
         if not selected:
             return
-        folder = Path(selected)
-        candidates = (
-            path
-            for path in sorted(folder.rglob("*"), key=lambda value: str(value).lower())
-            if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
-        )
-        self._append_sources(candidates)
+        self._append_sources(expand_dropped_sources([Path(selected)]))
+
+    def _on_drop_enter(self, _event: tk.Event) -> str:
+        if self.running:
+            return REFUSE_DROP
+        self.status_var.set("Drop to add files and folders")
+        return COPY
+
+    def _on_drop_leave(self, _event: tk.Event) -> str:
+        if not self.running:
+            self.status_var.set("Ready when you are")
+        return COPY
+
+    def _on_files_dropped(self, event: tk.Event) -> str:
+        if self.running:
+            return REFUSE_DROP
+        dropped_paths = [Path(path) for path in self.root.tk.splitlist(event.data)]
+        self._append_sources(expand_dropped_sources(dropped_paths))
+        self.status_var.set("Ready when you are")
+        return COPY
 
     def _append_sources(self, paths: Iterable[Path]) -> None:
         added = 0
@@ -935,6 +955,6 @@ class MarkItDownApp:
 
 
 def main() -> None:
-    root = tk.Tk()
+    root = TkinterDnD.Tk()
     MarkItDownApp(root)
     root.mainloop()

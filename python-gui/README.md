@@ -6,7 +6,7 @@ activity ledger, and elapsed time for both the complete run and each document.
 
 ## Features
 
-- Queue individual files or recursively add a folder.
+- Queue individual files or recursively add a folder with the picker or by dropping files and folders directly on the source table.
 - Convert the complete queue with visible progress and step-by-step logs.
 - Switch between light and dark themes.
 - Right-click completed rows to open their Markdown output.

@@ -21,6 +21,7 @@ if (-not (Test-Path -LiteralPath $python)) {
 
 & $python -m pip install --disable-pip-version-check --upgrade `
     "pyinstaller>=6.14,<7" `
+    "tkinterdnd2==0.6.3" `
     $markitdownDependency
 
 & $python -m pip install --disable-pip-version-check --upgrade --no-deps `
