@@ -1,7 +1,7 @@
 version: 2
 updates:
-- package-ecosystem: nuget
-  directory: "/"
+- package-ecosystem: cargo
+  directory: "/rust-desktop"
   schedule:
     interval: weekly
     time: "10:00"
