@@ -1,3 +1,11 @@
+# Rust desktop release
+
+The current release uses GPUI Kit, pdfium-render, PDFium, Tesseract and
+Myanmar/English tessdata_best models. See
+[rust-desktop/THIRD_PARTY.md](rust-desktop/THIRD_PARTY.md). The installer ships
+native and Rust dependency notices under `runtime/licenses`.
+
+The following notices describe the retained legacy implementations.
 # Third-party notices
 
 MarkItDown Desktop is an independent community application. It is not an official Microsoft product. It is powered by the Microsoft MarkItDown open-source project and does not use Microsoft branding or logos.

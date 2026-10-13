@@ -1,0 +1,24 @@
+// GPUI's Windows backend loads the application icon from resource ID 1.
+1 ICON "markitdown.ico"
+
+1 VERSIONINFO
+FILEVERSION 0,3,0,0
+PRODUCTVERSION 0,3,0,0
+FILEOS 0x40004
+FILETYPE 0x1
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "MarkItDown\0"
+            VALUE "ProductName", "MarkItDown\0"
+            VALUE "FileVersion", "0.3.0\0"
+            VALUE "ProductVersion", "0.3.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

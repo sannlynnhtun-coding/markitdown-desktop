@@ -1,4 +1,4 @@
-name: CI
+name: Rust desktop CI
 
 on:
   push:
@@ -11,124 +11,53 @@ on:
 permissions:
   contents: read
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   verify:
-    name: Test Python desktop app
+    name: Check Rust desktop
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          python-version: "3.13"
-
-      - name: Install test dependencies
-        shell: pwsh
-        run: |
-          python -m pip install --disable-pip-version-check `
-            "markitdown @ git+https://github.com/microsoft/markitdown.git@cc0ca9edd8e23b2c7f7b778c7b148c1565730498#subdirectory=packages/markitdown"
-          python -m pip install --disable-pip-version-check "tkinterdnd2==0.6.3"
-          python -m pip install --disable-pip-version-check --no-deps .\python-gui
-
-      - name: Run tests
-        shell: pwsh
-        run: |
-          $env:PYTHONPATH = (Resolve-Path .\python-gui\src).Path
-          python -m unittest discover -s .\python-gui\tests -v
+          components: rustfmt, clippy
+      - name: Formatting
+        run: cargo fmt --manifest-path rust-desktop/Cargo.toml -- --check
+      - name: Unit tests
+        run: cargo test --locked --manifest-path rust-desktop/Cargo.toml --no-default-features
+      - name: Desktop Clippy
+        run: cargo clippy --locked --manifest-path rust-desktop/Cargo.toml --all-targets -- -D warnings
 
   package:
-    name: Build and publish Windows installer
+    name: Build Rust Windows installer artifact
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     needs: verify
     runs-on: windows-latest
     timeout-minutes: 90
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
-      - name: Ensure Inno Setup is installed
-        shell: pwsh
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
-
+      - name: Prepare PDF and OCR runtime
+        shell: pwsh
+        run: .\rust-desktop\scripts\prepare-runtime.ps1 -RuntimeDirectory "$env:RUNNER_TEMP\markitdown-runtime"
+      - name: Test native PDF and Myanmar OCR
+        shell: pwsh
+        run: |
+          $env:MARKITDOWN_RUNTIME = "$env:RUNNER_TEMP\markitdown-runtime"
+          $env:MARKITDOWN_MYANMAR_TEST_IMAGE = .\rust-desktop\tests\make-myanmar-fixture.ps1 -Output "$env:RUNNER_TEMP\myanmar.png"
+          cargo test --locked --manifest-path rust-desktop/Cargo.toml --no-default-features --test pdf_pipeline -- --ignored
       - name: Build installer
         shell: pwsh
-        run: |
-          $version = if ($env:GITHUB_REF_TYPE -eq 'tag') {
-            $env:GITHUB_REF_NAME.TrimStart('v')
-          } else {
-            '0.2.0'
-          }
-          .\python-gui\installer\build-installer.ps1 -Version $version
-
-          $releaseRoot = New-Item -ItemType Directory -Force .\artifacts\release
-          $built = ".\python-gui\artifacts\MarkItDown-Setup-$version-win-x64.exe"
-          $installer = Join-Path $releaseRoot 'MarkItDownDesktop-Setup-x64.exe'
-          Copy-Item -LiteralPath $built -Destination $installer
-          $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  MarkItDownDesktop-Setup-x64.exe" |
-            Set-Content -LiteralPath (Join-Path $releaseRoot 'SHA256SUMS.txt') -Encoding ascii
-
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
+        run: .\rust-desktop\scripts\build.ps1 -Mode release -Installer -RuntimeDirectory "$env:RUNNER_TEMP\markitdown-runtime" -DistributionDirectory "$env:RUNNER_TEMP\markitdown-dist"
+      - uses: actions/upload-artifact@v4
         with:
-          name: MarkItDown-Desktop-${{ github.ref_name }}-unsigned
+          name: MarkItDown-${{ github.ref_name }}-windows-x64
           path: |
-            artifacts/release/MarkItDownDesktop-Setup-x64.exe
-            artifacts/release/SHA256SUMS.txt
+            ${{ runner.temp }}/markitdown-dist/installer/MarkItDown-Setup-x64.exe
+            ${{ runner.temp }}/markitdown-dist/installer/MarkItDown-Setup-x64.exe.sha256
           if-no-files-found: error
-
-      - name: Replace GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          $tag = $env:GITHUB_REF_NAME
-          $notes = @'
-          A self-contained Windows desktop interface powered by Microsoft MarkItDown.
-
-          ## Highlights
-
-          - Drag individual files or entire folders from Explorer directly onto the source queue.
-          - Dropped folders are scanned recursively; supported files are queued in stable order without duplicates.
-          - Add files or folders with the accessible picker controls and use the visible **Convert all** action.
-          - Follow batch percentage, per-file status, step-by-step logs, and elapsed time.
-          - Switch between light and dark modes.
-          - Right-click completed files to open their Markdown output.
-          - Right-click selected rows to remove them from the queue without deleting files.
-          - Uses the MarkItDown app icon in the installer, executable, taskbar, and window title bar.
-
-          ## Download
-
-          - **MarkItDownDesktop-Setup-x64.exe** — recommended self-contained Windows x64 installer.
-          - **SHA256SUMS.txt** — SHA-256 checksum for the installer.
-
-          End users do not need Python, pip, or a command line. Conversion runs locally.
-
-          > [!WARNING]
-          > The installer is unsigned, so Windows may show a SmartScreen warning.
-          '@
-
-          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -eq 0) {
-            $assets = gh release view $tag --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[].name'
-            foreach ($asset in $assets) {
-              gh release delete-asset $tag $asset --repo $env:GITHUB_REPOSITORY --yes
-            }
-            gh release edit $tag --repo $env:GITHUB_REPOSITORY `
-              --title "MarkItDown Desktop $tag" --notes $notes --latest
-          } else {
-            gh release create $tag --repo $env:GITHUB_REPOSITORY --verify-tag `
-              --title "MarkItDown Desktop $tag" --notes $notes --latest
-          }
-
-          gh release upload $tag `
-            .\artifacts\release\MarkItDownDesktop-Setup-x64.exe `
-            .\artifacts\release\SHA256SUMS.txt `
-            --repo $env:GITHUB_REPOSITORY --clobber

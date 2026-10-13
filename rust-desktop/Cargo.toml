@@ -1,0 +1,41 @@
+[package]
+name = "markitdown-desktop"
+version = "0.3.0"
+edition = "2024"
+rust-version = "1.92"
+license = "MIT"
+description = "Offline Windows PDF to Markdown with GPUI Kit and Burmese OCR"
+default-run = "markitdown-desktop"
+
+[features]
+default = ["desktop"]
+desktop = ["dep:gpui-kit", "dep:rfd", "dep:async-channel"]
+
+[dependencies]
+anyhow = "1"
+pdfium-render = "=0.9.4"
+tempfile = "3"
+unicode-normalization = "0.1"
+image = { version = "0.25", default-features = false, features = ["png"] }
+gpui-kit = { version = "=0.7.3", optional = true }
+rfd = { version = "0.15", optional = true }
+async-channel = { version = "2", optional = true }
+
+[build-dependencies]
+embed-resource = "3"
+
+[[bin]]
+name = "markitdown-desktop"
+path = "src/main.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "pdf-to-markdown"
+path = "src/bin/pdf-to-markdown.rs"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.release]
+strip = true

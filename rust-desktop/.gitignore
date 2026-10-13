@@ -1,0 +1,6 @@
+/target/
+/runtime/
+/dist/
+/artifacts/
+!src/bin/
+!src/bin/*.rs
