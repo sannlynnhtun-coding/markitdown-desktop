@@ -1,0 +1,67 @@
+name: Publish verified Rust release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing draft release tag
+        required: true
+        default: v0.3.0
+      source_run_id:
+        description: Successful tag CI run containing the installer artifact
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: publish-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Wait for matching successful CI build
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v\d+\.\d+\.\d+$' -or $env:SOURCE_RUN_ID -notmatch '^\d+$') { throw 'Invalid release inputs' }
+          gh run watch $env:SOURCE_RUN_ID --repo $env:GITHUB_REPOSITORY --exit-status --interval 30
+          if ($LASTEXITCODE -ne 0) { throw 'Source CI failed' }
+          $run = gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:SOURCE_RUN_ID" | ConvertFrom-Json
+          $tagCommit = git rev-parse HEAD
+          if ($run.conclusion -ne 'success' -or $run.head_sha -ne $tagCommit -or $run.head_branch -ne $env:RELEASE_TAG) {
+            throw 'The CI build does not match the release tag'
+          }
+      - name: Download and verify installer
+        shell: pwsh
+        run: |
+          $stage = Join-Path $env:RUNNER_TEMP 'release-installer'
+          gh run download $env:SOURCE_RUN_ID --repo $env:GITHUB_REPOSITORY --name "MarkItDown-$env:RELEASE_TAG-windows-x64" --dir $stage
+          if ($LASTEXITCODE -ne 0) { throw 'Artifact download failed' }
+          $installer = Join-Path $stage 'MarkItDown-Setup-x64.exe'
+          $expected = (Get-Content -LiteralPath "$installer.sha256").Split(' ')[0]
+          if ((Get-FileHash -LiteralPath $installer).Hash.ToLower() -ne $expected) { throw 'Installer checksum mismatch' }
+      - name: Upload assets and publish draft
+        shell: pwsh
+        run: |
+          $release = gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --json isDraft | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0 -or !$release.isDraft) { throw 'An existing draft release is required; published releases are never replaced' }
+          $installer = Join-Path $env:RUNNER_TEMP 'release-installer\MarkItDown-Setup-x64.exe'
+          gh release upload $env:RELEASE_TAG $installer "$installer.sha256" --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed' }
+          $uploaded = gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --json assets | ConvertFrom-Json
+          $binary = $uploaded.assets | Where-Object name -EQ 'MarkItDown-Setup-x64.exe'
+          $checksum = $uploaded.assets | Where-Object name -EQ 'MarkItDown-Setup-x64.exe.sha256'
+          if (!$binary -or !$checksum -or $binary.size -ne (Get-Item -LiteralPath $installer).Length) { throw 'Uploaded assets are incomplete' }
+          gh release edit $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --title "MarkItDown $env:RELEASE_TAG — Rust + GPUI Kit" --notes-file rust-desktop/RELEASE_NOTES.md --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
