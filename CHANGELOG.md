@@ -11,7 +11,7 @@
 - Align toolbar rows and standardize button heights and vertical padding.
 - Add the How to use popup, Myanmar step-by-step guide and F1/Esc shortcuts.
 - Fix PDFium initialization for repeated batches in one session.
-- Bundle native PDF/OCR engines and language models without a Python runtime.
+- Bundle native PDF/OCR engines, language models and the VC runtime without Python.
 - Scope this Rust version to PDF; retain legacy implementations as reference.
 ## 0.2.0 - 2026-10-07
 

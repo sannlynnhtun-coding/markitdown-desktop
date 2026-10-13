@@ -39,6 +39,12 @@ New-Item -ItemType Directory -Force $dist | Out-Null
 foreach ($exe in 'markitdown-desktop.exe','pdf-to-markdown.exe') {
     Copy-Item -LiteralPath (Join-Path $env:CARGO_TARGET_DIR "release\$exe") -Destination $dist -Force
 }
+# The GPUI executable imports the MSVC runtime; ship it beside the executable.
+$vcRuntime = Join-Path $RuntimeDirectory 'tesseract\vcruntime140.dll'
+if (!(Test-Path -LiteralPath $vcRuntime)) { throw 'Missing native VC runtime: prepare the complete Tesseract runtime before packaging.' }
+Get-ChildItem -LiteralPath (Join-Path $RuntimeDirectory 'tesseract') -Filter 'vcruntime140*.dll' -File | ForEach-Object {
+    Copy-Item -LiteralPath $_.FullName -Destination $dist -Force
+}
 $distRuntime = Join-Path $dist 'runtime'
 New-Item -ItemType Directory -Force $distRuntime | Out-Null
 foreach ($runtimeEntry in 'pdfium.dll', 'tesseract', 'tessdata', 'licenses', 'native-packages.txt') {
@@ -65,7 +71,9 @@ $rustNotices = foreach ($package in $rustMetadata.packages) {
     "$($package.name) $($package.version) | $($package.license) | $($package.repository)"
 }
 $rustNotices | Set-Content -Encoding utf8 (Join-Path $rustLicenseRoot 'packages.txt')
-Get-ChildItem -LiteralPath $dist -Recurse -File | Where-Object Name -NE 'SHA256SUMS.txt' | ForEach-Object {
+Get-ChildItem -LiteralPath $dist -Recurse -File | Where-Object {
+    $_.Name -ne 'SHA256SUMS.txt' -and !$_.FullName.StartsWith((Join-Path $dist 'installer') + '\', [StringComparison]::OrdinalIgnoreCase)
+} | ForEach-Object {
     $relative = [IO.Path]::GetRelativePath($dist, $_.FullName)
     "$((Get-FileHash -LiteralPath $_.FullName).Hash.ToLower())  $relative"
 } | Set-Content -Encoding utf8 (Join-Path $dist 'SHA256SUMS.txt')

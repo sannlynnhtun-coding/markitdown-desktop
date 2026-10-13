@@ -23,6 +23,7 @@ UninstallDisplayIcon={app}\markitdown-desktop.exe
 SetupIconFile={#SourceDir}\markitdown.ico
 [Files]
 Source: "{#SourceDir}\*.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\vcruntime140*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\*.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\markitdown.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\SHA256SUMS.txt"; DestDir: "{app}"; Flags: ignoreversion

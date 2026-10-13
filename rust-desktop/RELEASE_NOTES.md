@@ -3,6 +3,8 @@
 MarkItDown now has a Rust Windows desktop app built with **GPUI Kit**,
 with local PDF-to-Markdown conversion and **Myanmar + English OCR**.
 The installer bundles PDFium, Tesseract and both OCR language models.
+The native VC runtime is included beside the app executable for Windows machines
+without the developer toolchain.
 No Python, pip, .NET runtime or API key is required to use this release.
 
 ## What's new
