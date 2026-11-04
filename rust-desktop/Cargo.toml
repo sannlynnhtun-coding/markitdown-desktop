@@ -13,7 +13,7 @@ desktop = ["dep:gpui-kit", "dep:rfd", "dep:async-channel"]
 
 [dependencies]
 anyhow = "1"
-pdfium-render = "=0.9.4"
+pdfium-render = "=0.9.5"
 tempfile = "3"
 unicode-normalization = "0.1"
 image = { version = "0.25", default-features = false, features = ["png"] }
