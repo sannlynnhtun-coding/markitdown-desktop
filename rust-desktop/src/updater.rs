@@ -11,6 +11,8 @@ pub fn check(manual: bool) -> std::io::Result<()> {
         ));
     }
     let mut command = Command::new("powershell.exe");
+    // PowerShell 7 module paths can hide Windows PowerShell's Get-FileHash.
+    command.env_remove("PSModulePath");
     command
         .args([
             "-NoProfile",

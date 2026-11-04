@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 - 2026-11-04
+
+- Upgrade pdfium-render from 0.9.4 to 0.9.5.
+- Fix updater checksum verification when launched from a PowerShell 7 environment.
+- Available through the Updates button in v0.4.0.
+
 ## 0.4.0 - 2026-11-04
 
 - Check GitHub Releases at startup and from the Updates button.
