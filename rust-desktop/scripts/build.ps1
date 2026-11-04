@@ -55,6 +55,7 @@ foreach ($runtimeEntry in 'pdfium.dll', 'tesseract', 'tessdata', 'licenses', 'na
 }
 Copy-Item -LiteralPath (Join-Path $project 'README.md'), (Join-Path $project 'THIRD_PARTY.md'), (Join-Path $project 'HOW_TO_USE.md') -Destination $dist -Force
 Copy-Item -LiteralPath (Join-Path $project 'assets\markitdown.ico') -Destination $dist -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'update.ps1') -Destination $dist -Force
 $rustLicenseRoot = Join-Path $dist 'runtime\licenses\rust'
 New-Item -ItemType Directory -Force $rustLicenseRoot | Out-Null
 $metadataText = & cargo metadata --locked --offline --manifest-path $manifest --filter-platform x86_64-pc-windows-msvc --format-version 1

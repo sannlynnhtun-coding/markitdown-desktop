@@ -33,6 +33,12 @@ certificate chain validation and verified download hashes.
 
 ## Use
 
+Packaged installations check GitHub Releases at startup. Click **Updates** to
+check manually. Confirm the download, then export any results and close the app;
+setup waits for the app to exit before updating its installation directory.
+Downloads are SHA-256 verified. Offline startup checks stay quiet. The installer
+is unsigned. Install v0.4.0 manually once to receive the updater.
+
 Click **How to use** in the toolbar, or press **F1**, for the built-in Myanmar
 step-by-step guide. The scrollable popup covers import, OCR mode/language,
 conversion, preview, export and troubleshooting. Close it with **Close**, the

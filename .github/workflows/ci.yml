@@ -28,6 +28,12 @@ jobs:
         run: cargo fmt --manifest-path rust-desktop/Cargo.toml -- --check
       - name: Unit tests
         run: cargo test --locked --manifest-path rust-desktop/Cargo.toml --no-default-features
+      - name: Updater self-checks
+        run: |
+          powershell.exe -NoProfile -File rust-desktop/scripts/update.ps1 -SelfTest
+          if ($LASTEXITCODE -ne 0) { throw 'Updater self-checks failed' }
+          powershell.exe -NoProfile -File rust-desktop/tests/updater.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Updater regression checks failed' }
       - name: Desktop Clippy
         run: cargo clippy --locked --manifest-path rust-desktop/Cargo.toml --all-targets -- -D warnings
 

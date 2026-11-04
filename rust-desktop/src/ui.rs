@@ -592,6 +592,20 @@ impl Workspace {
                             .on_click(|_, window, cx| show_help(window, cx)),
                     )
                     .child(
+                        control_button("updates")
+                            .label("Updates")
+                            .disabled(self.running || self.dialog_open)
+                            .on_click(cx.listener(|v, _, _, cx| {
+                                match crate::updater::check(true) {
+                                    Ok(()) => v.note("Checking GitHub for updates…"),
+                                    Err(error) => {
+                                        v.note(format!("Cannot check for updates: {error}"))
+                                    }
+                                }
+                                cx.notify();
+                            })),
+                    )
+                    .child(
                         control_button("theme")
                             .label(if self.dark { "Light" } else { "Dark" })
                             .on_click(cx.listener(|v, _, w, cx| v.toggle_theme(w, cx))),

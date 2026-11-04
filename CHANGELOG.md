@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 - 2026-11-04
+
+- Check GitHub Releases at startup and from the Updates button.
+- Download and SHA-256 verify installers; wait for the app to close before setup.
+- Upgrade GPUI Kit to 0.8.1 and unicode-normalization to 0.1.26.
+- Remove invalid Dependabot labels.
+
 ## 0.3.0 - 2026-10-13
 
 - Replace the current desktop release with a Rust + GPUI Kit Windows app.
