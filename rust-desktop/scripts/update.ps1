@@ -88,8 +88,8 @@ try {
     $installer = Join-Path $stage 'MarkItDown-Setup-x64.exe'
     $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest "$base/MarkItDown-Setup-x64.exe" -UseBasicParsing -Headers $headers -TimeoutSec 600 -OutFile $installer
-    $checksum = Invoke-WebRequest "$base/MarkItDown-Setup-x64.exe.sha256" -UseBasicParsing -Headers $headers -TimeoutSec 30
-    Test-InstallerHash $installer ([string]$checksum.Content)
+    Invoke-WebRequest "$base/MarkItDown-Setup-x64.exe.sha256" -UseBasicParsing -Headers $headers -TimeoutSec 30 -OutFile "$installer.sha256"
+    Test-InstallerHash $installer (Get-Content -LiteralPath "$installer.sha256" -Raw)
     if ((Show-UpdateMessage "Update downloaded and verified. Export any results you want to keep, then close MarkItDown. Click OK to wait for the app to close and start setup, or Cancel to discard the download. The wait expires after one hour." 'OKCancel') -ne 'OK') { return }
     if (!$app.WaitForExit(3600000)) { throw 'Update cancelled because MarkItDown is still open. Check for updates again when ready.' }
     $setup = Start-Process -FilePath $installer -ArgumentList ('/DIR="' + $InstallDirectory + '"') -Wait -PassThru
