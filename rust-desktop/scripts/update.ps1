@@ -47,6 +47,22 @@ if ($SelfTest) {
 }
 
 Add-Type -AssemblyName System.Windows.Forms
+Add-Type @'
+using System;
+using System.Runtime.InteropServices;
+public static class MarkItDownUpdateWindow {
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern IntPtr FindWindow(string className, string title);
+    [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr window, int command);
+    [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr window);
+}
+'@
+function Focus-UpdateWindow {
+    $window = [MarkItDownUpdateWindow]::FindWindow($null, 'MarkItDown update')
+    if ($window -eq [IntPtr]::Zero) { return $false }
+    [MarkItDownUpdateWindow]::ShowWindow($window, 9) | Out-Null
+    [MarkItDownUpdateWindow]::SetForegroundWindow($window) | Out-Null
+    return $true
+}
 function Show-UpdateMessage([string]$Message, [System.Windows.Forms.MessageBoxButtons]$Buttons = 'OK') {
     return [System.Windows.Forms.MessageBox]::Show($Message, 'MarkItDown update', $Buttons)
 }
@@ -55,16 +71,17 @@ $mutex = [Threading.Mutex]::new($false, 'Local\MarkItDownDesktopUpdater')
 $owned = $false
 $stage = $null
 try {
-    try { $owned = $mutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $owned = $true }
-    if (!$owned) {
-        if ($Manual) { Show-UpdateMessage 'An update check or download is already running.' | Out-Null }
-        return
-    }
     $current = Get-ReleaseVersion "v$CurrentVersion"
     $app = Get-Process -Id $AppProcessId
     if (!(Test-Path -LiteralPath (Join-Path $InstallDirectory 'markitdown-desktop.exe') -PathType Leaf)) {
         throw 'Application installation not found'
     }
+    try { $owned = $mutex.WaitOne(0) } catch [Threading.AbandonedMutexException] { $owned = $true }
+    while (!$owned -and $Manual) {
+        if ($app.HasExited -or (Focus-UpdateWindow)) { return }
+        try { $owned = $mutex.WaitOne(200) } catch [Threading.AbandonedMutexException] { $owned = $true }
+    }
+    if (!$owned) { return }
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $repo = 'https://github.com/sannlynnhtun-coding/markitdown-desktop'
     $headers = @{ 'User-Agent' = "MarkItDown/$CurrentVersion"; Accept = 'application/vnd.github+json' }
@@ -92,7 +109,10 @@ try {
     Test-InstallerHash $installer (Get-Content -LiteralPath "$installer.sha256" -Raw)
     if ((Show-UpdateMessage "Update downloaded and verified. Export any results you want to keep, then close MarkItDown. Click OK to wait for the app to close and start setup, or Cancel to discard the download. The wait expires after one hour." 'OKCancel') -ne 'OK') { return }
     if (!$app.WaitForExit(3600000)) { throw 'Update cancelled because MarkItDown is still open. Check for updates again when ready.' }
-    $setup = Start-Process -FilePath $installer -ArgumentList ('/DIR="' + $InstallDirectory + '"') -Wait -PassThru
+    $setup = Start-Process -FilePath $installer -ArgumentList ('/DIR="' + $InstallDirectory + '"') -PassThru
+    # Start-Process -Wait also waits for the app opened by setup, keeping the update lock alive.
+    $setup.WaitForExit()
+    $setup.Refresh()
     if ($setup.ExitCode -ne 0) { throw "Setup did not complete (exit code $($setup.ExitCode)). Your existing installation is still available." }
 } catch {
     # Offline startup checks stay quiet; requested checks and accepted updates report errors.

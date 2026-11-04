@@ -1,18 +1,18 @@
-# MarkItDown v0.4.1
+# MarkItDown v0.4.2
 
-- Upgrade pdfium-render from 0.9.4 to 0.9.5.
-- Fix updater checksum verification when the app inherits a PowerShell 7 module path. The updater now lets Windows PowerShell resolve its own modules.
+- Clicking **Updates** during a startup check waits for it to finish instead of showing "already running".
+- If an update prompt is already open, **Updates** brings it forward and reuses the same update flow.
+- Queued checks stop when their originating app closes.
+- Setup waits only for the installer process, releasing the updater lock after installation even when setup reopens MarkItDown.
 
 ## Update from the app
 
-In v0.4.0, click **Updates**, approve the download, then export your work and close
-MarkItDown when prompted. Setup installs this release in the same directory.
-Startup also checks for available updates. Users on v0.3.0 or earlier must
-install manually once to receive the updater.
+In v0.4.0 or v0.4.1, click **Updates**, approve the download, export your work,
+and close MarkItDown when prompted. Setup updates the same installation folder.
+If an older updater remains active after setup opens v0.4.2, close and reopen
+that app once to let the older updater finish. Future updates use the fixed wait.
+Users on v0.3.0 or earlier need one manual installation to receive the updater.
 
-Windows 10/11 x64. PDFium, Tesseract, Myanmar/English OCR models and the native
-VC runtime remain bundled. No Python, .NET runtime or API key is needed.
-
-The installer remains unsigned. GitHub-hosted SHA-256 checksums verify download
-integrity. Conversion stays local; update checks contact GitHub. PDF only;
-review OCR results against the original document.
+Windows 10/11 x64. PDFium, Tesseract, Myanmar/English models and native VC runtime
+are bundled. The installer is unsigned; SHA-256 checksums verify download integrity.
+Conversion stays local. PDF only; review OCR results against the original.
