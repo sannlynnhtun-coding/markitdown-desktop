@@ -19,7 +19,16 @@ is needed to use the app.
 Click **How to use** or press **F1** for the built-in step-by-step Myanmar guide.
 Close the popup with **Close**, **×**, or **Esc**.
 
-## What's new in v0.3.0
+## What's new in v0.4.0
+
+- GitHub update checks at startup and an **Updates** button for manual checks.
+- Downloads are checksum-verified; setup waits until you export your work and close the app.
+- Updated GPUI Kit to 0.8.1 and unicode-normalization to 0.1.26; fixed Dependabot's missing-label configuration.
+
+Install v0.4.0 manually once to receive the updater. Future updates require your
+confirmation. Offline startup checks are silent; PDF conversion stays offline.
+
+## Desktop features
 
 - Rust/GPUI Kit UI with aligned controls, equal button height and vertical padding.
 - Direct PDF text extraction and scanned-page OCR with Myanmar/English models.

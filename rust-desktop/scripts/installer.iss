@@ -7,7 +7,7 @@
 [Setup]
 AppId={{F1E9711C-AF98-4BF5-B8B3-8EE37C381921}
 AppName=MarkItDown
-AppVersion=0.3.0
+AppVersion=0.4.0
 DefaultDirName={localappdata}\Programs\MarkItDown
 DefaultGroupName=MarkItDown
 UsePreviousGroup=no
@@ -23,6 +23,7 @@ UninstallDisplayIcon={app}\markitdown-desktop.exe
 SetupIconFile={#SourceDir}\markitdown.ico
 [Files]
 Source: "{#SourceDir}\*.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\update.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\vcruntime140*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\*.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\markitdown.ico"; DestDir: "{app}"; Flags: ignoreversion

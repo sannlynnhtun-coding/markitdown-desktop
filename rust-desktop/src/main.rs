@@ -2,10 +2,12 @@
 extern crate gpui_kit as gpui;
 
 mod ui;
+mod updater;
 
 use gpui_kit::*;
 
 fn main() {
+    let _ = updater::check(false);
     application().with_assets(assets::Assets).run(|cx| {
         init(cx);
         let bounds = Bounds::centered(None, size(px(1280.), px(840.)), cx);
