@@ -57,7 +57,8 @@ public static class MarkItDownUpdateWindow {
 }
 '@
 function Focus-UpdateWindow {
-    $window = [MarkItDownUpdateWindow]::FindWindow($null, 'MarkItDown update')
+    # $null becomes an empty native string; NullString matches any window class.
+    $window = [MarkItDownUpdateWindow]::FindWindow([NullString]::Value, 'MarkItDown update')
     if ($window -eq [IntPtr]::Zero) { return $false }
     [MarkItDownUpdateWindow]::ShowWindow($window, 9) | Out-Null
     [MarkItDownUpdateWindow]::SetForegroundWindow($window) | Out-Null
