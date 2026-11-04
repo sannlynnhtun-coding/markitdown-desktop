@@ -19,11 +19,11 @@ is needed to use the app.
 Click **How to use** or press **F1** for the built-in step-by-step Myanmar guide.
 Close the popup with **Close**, **×**, or **Esc**.
 
-## What's new in v0.4.1
+## What's new in v0.4.2
 
-- Updated pdfium-render to 0.9.5.
-- Fixed updater verification when the app inherits PowerShell 7 module paths.
-- Already on v0.4.0? Click **Updates** to download and install this release.
+- Updates reuses an existing update prompt or waits for a startup check to finish.
+- The updater releases its lock when setup exits, without waiting for the reopened app.
+- Already on v0.4.0 or v0.4.1? Click **Updates** to install this release.
 
 ## Updates
 

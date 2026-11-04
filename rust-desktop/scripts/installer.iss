@@ -7,7 +7,7 @@
 [Setup]
 AppId={{F1E9711C-AF98-4BF5-B8B3-8EE37C381921}
 AppName=MarkItDown
-AppVersion=0.4.1
+AppVersion=0.4.2
 DefaultDirName={localappdata}\Programs\MarkItDown
 DefaultGroupName=MarkItDown
 UsePreviousGroup=no

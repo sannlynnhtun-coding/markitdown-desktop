@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 - 2026-11-04
+
+- Replace the startup/manual update lock warning with prompt reuse or queued checking.
+- Cancel queued manual checks when their app closes.
+- Wait only for the installer process, allowing lock release after setup reopens the app.
+- Add real-mutex regression checks for startup handoff, prompt reuse and cancellation.
+
 ## 0.4.1 - 2026-11-04
 
 - Upgrade pdfium-render from 0.9.4 to 0.9.5.
